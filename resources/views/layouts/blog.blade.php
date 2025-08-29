@@ -20,8 +20,10 @@
 
     <!-- Custom Styles -->
     <style>
-        /* Smooth transitions for dropdowns */
-        [x-cloak] { display: none !important; }
+        /* Prevent flash of unstyled content */
+        [x-cloak] {
+            display: none !important;
+        }
 
         /* Custom scrollbar for mobile menu */
         .mobile-menu::-webkit-scrollbar {
@@ -96,6 +98,7 @@
 
                             <!-- Dropdown Menu -->
                             <div x-show="open"
+                                 x-cloak
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 scale-95"
                                  x-transition:enter-end="opacity-100 scale-100"
@@ -154,6 +157,7 @@
 
                             <!-- Post Types Dropdown Menu -->
                             <div x-show="open"
+                                 x-cloak
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 scale-95"
                                  x-transition:enter-end="opacity-100 scale-100"
@@ -234,6 +238,7 @@
 
                             <!-- User Dropdown Menu -->
                             <div x-show="open"
+                                 x-cloak
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 scale-95"
                                  x-transition:enter-end="opacity-100 scale-100"
@@ -351,6 +356,7 @@
 
                         <!-- Mobile menu -->
                         <div x-show="mobileOpen"
+                             x-cloak
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0 scale-95"
                              x-transition:enter-end="opacity-100 scale-100"
