@@ -25,7 +25,7 @@
 
             <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
                 <span class="bg-gradient-to-r from-accent-300 to-accent-100 bg-clip-text text-transparent">
-                    {{ $siteName }}
+                    {{ \App\Models\BlogSetting::get('header_text', config('app.name')) }}
                 </span>
             </h1>
 

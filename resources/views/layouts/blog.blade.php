@@ -57,20 +57,20 @@
                     <a href="{{ route('blog.index') }}" class="flex items-center group">
                         @php
                             $siteLogo = \App\Models\BlogSetting::get('site_logo');
-                            $siteName = \App\Models\BlogSetting::get('site_name', config('app.name'));
+                            $navbarText = \App\Models\BlogSetting::get('navbar_text', config('app.name'));
                         @endphp
 
                         @if($siteLogo)
                             <img src="{{ asset('storage/' . $siteLogo) }}"
-                                 alt="{{ $siteName }}"
+                                 alt="{{ $navbarText }}"
                                  class="h-10 w-auto object-contain mr-3 group-hover:scale-105 transition-transform duration-200">
                         @else
                             <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center mr-3 group-hover:scale-105 transition-transform duration-200">
-                                <span class="text-white font-bold text-sm">{{ substr($siteName, 0, 2) }}</span>
+                                <span class="text-white font-bold text-sm">{{ substr($navbarText, 0, 2) }}</span>
                             </div>
                         @endif
 
-                        <span class="text-2xl font-bold bg-gradient-to-r from-secondary-900 to-primary-700 bg-clip-text text-transparent">{{ $siteName }}</span>
+                        <span class="text-2xl font-bold bg-gradient-to-r from-secondary-900 to-primary-700 bg-clip-text text-transparent">{{ $navbarText }}</span>
                     </a>
 
                     <!-- Navigation Links -->
@@ -471,21 +471,26 @@
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center">
                         @php
+                            $footerLogo = \App\Models\BlogSetting::get('footer_logo');
                             $siteLogo = \App\Models\BlogSetting::get('site_logo');
-                            $siteName = \App\Models\BlogSetting::get('site_name', config('app.name'));
+                            $footerText = \App\Models\BlogSetting::get('footer_text', config('app.name'));
                             $siteDescription = \App\Models\BlogSetting::get('site_description', 'Tu fuente confiable de información sobre tecnología, programación y desarrollo web.');
                         @endphp
 
-                        @if($siteLogo)
+                        @if($footerLogo)
+                            <img src="{{ asset('storage/' . $footerLogo) }}"
+                                 alt="{{ $footerText }}"
+                                 class="h-8 w-auto object-contain mr-3">
+                        @elseif($siteLogo)
                             <img src="{{ asset('storage/' . $siteLogo) }}"
-                                 alt="{{ $siteName }}"
+                                 alt="{{ $footerText }}"
                                  class="h-8 w-auto object-contain mr-3">
                         @else
                             <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center mr-3">
-                                <span class="text-white font-bold text-xs">{{ substr($siteName, 0, 2) }}</span>
+                                <span class="text-white font-bold text-xs">{{ substr($footerText, 0, 2) }}</span>
                             </div>
                         @endif
-                        <span class="ml-2 text-lg font-bold">{{ $siteName }}</span>
+                        <span class="ml-2 text-lg font-bold">{{ $footerText }}</span>
                     </div>
                     <p class="mt-4 text-gray-300">
                         {{ $siteDescription }}
@@ -513,7 +518,7 @@
 
             <div class="mt-8 border-t border-gray-700 pt-8">
                 <p class="text-center text-gray-400">
-                    © {{ date('Y') }} {{ \App\Models\BlogSetting::get('site_name', config('app.name')) }}. Todos los derechos reservados.
+                    © {{ date('Y') }} {{ \App\Models\BlogSetting::get('footer_text', config('app.name')) }}. Todos los derechos reservados.
                 </p>
             </div>
         </div>

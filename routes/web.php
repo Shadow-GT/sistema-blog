@@ -67,9 +67,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::patch('/admin/author-requests/{user}/reject', [\App\Http\Controllers\Admin\AuthorRequestController::class, 'reject'])->name('admin.author-requests.reject');
 
     // Configuración del blog
-    Route::get('/admin/blog-settings', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'index'])->name('admin.blog-settings.index');
-    Route::patch('/admin/blog-settings', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'update'])->name('admin.blog-settings.update');
-    Route::delete('/admin/blog-settings/logo', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'removeLogo'])->name('admin.blog-settings.remove-logo');
+    Route::prefix('admin/blog-settings')->name('admin.blog-settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'index'])->name('index');
+        Route::patch('/', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'update'])->name('update');
+        Route::delete('/logo', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'removeLogo'])->name('remove-logo');
+        Route::delete('/footer-logo', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'removeFooterLogo'])->name('remove-footer-logo');
+    });
 
     // Moderación (alias para admin posts)
     Route::get('/moderation', [\App\Http\Controllers\Admin\PostController::class, 'index'])->name('moderation.index');

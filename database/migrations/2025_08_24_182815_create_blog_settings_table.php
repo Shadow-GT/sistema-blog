@@ -39,6 +39,46 @@ return new class extends Migration
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'key' => 'navbar_text',
+                'value' => config('app.name', 'Mi Blog'),
+                'type' => 'text',
+                'group' => 'general',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'key' => 'header_text',
+                'value' => config('app.name', 'Mi Blog'),
+                'type' => 'text',
+                'group' => 'general',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'key' => 'footer_text',
+                'value' => config('app.name', 'Mi Blog'),
+                'type' => 'text',
+                'group' => 'general',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'key' => 'footer_logo',
+                'value' => null,
+                'type' => 'image',
+                'group' => 'general',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'key' => 'site_description',
+                'value' => 'Tu fuente confiable de información sobre tecnología, programación y desarrollo web.',
+                'type' => 'text',
+                'group' => 'general',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 

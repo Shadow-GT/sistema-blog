@@ -65,6 +65,33 @@
         </div>
         @endif
 
+        @if (session('error'))
+        <div class="bg-red-50 border border-red-200 rounded-2xl px-6 py-4 mb-8">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-red-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h3 class="text-red-800 font-semibold">Error:</h3>
+                    <p class="text-red-700">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        @if (session('info'))
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl px-6 py-4 mb-8">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-blue-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <p class="text-blue-700">{{ session('info') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Form -->
             <div class="lg:col-span-2">
@@ -93,7 +120,54 @@
                                        value="{{ old('site_name', $settings['site_name']) }}"
                                        class="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-lg"
                                        placeholder="Mi Blog Increíble">
-                                <p class="text-xs text-secondary-500 mt-2">Este nombre aparecerá en el título del sitio y en la navegación</p>
+                                <p class="text-xs text-secondary-500 mt-2">Nombre principal del blog para configuraciones internas</p>
+                            </div>
+
+                            <!-- Navbar Text -->
+                            <div>
+                                <label for="navbar_text" class="block text-sm font-semibold text-secondary-700 mb-2">
+                                    Texto del Navbar *
+                                </label>
+                                <input type="text" name="navbar_text" id="navbar_text" required
+                                       value="{{ old('navbar_text', $settings['navbar_text']) }}"
+                                       class="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                       placeholder="Mi Blog">
+                                <p class="text-xs text-secondary-500 mt-2">Texto que aparece en la navegación junto al logo</p>
+                            </div>
+
+                            <!-- Header Text -->
+                            <div>
+                                <label for="header_text" class="block text-sm font-semibold text-secondary-700 mb-2">
+                                    Texto del Header *
+                                </label>
+                                <input type="text" name="header_text" id="header_text" required
+                                       value="{{ old('header_text', $settings['header_text']) }}"
+                                       class="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                       placeholder="Bienvenido a Mi Blog">
+                                <p class="text-xs text-secondary-500 mt-2">Título grande que aparece en la página principal</p>
+                            </div>
+
+                            <!-- Footer Text -->
+                            <div>
+                                <label for="footer_text" class="block text-sm font-semibold text-secondary-700 mb-2">
+                                    Texto del Footer *
+                                </label>
+                                <input type="text" name="footer_text" id="footer_text" required
+                                       value="{{ old('footer_text', $settings['footer_text']) }}"
+                                       class="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                       placeholder="Mi Blog">
+                                <p class="text-xs text-secondary-500 mt-2">Texto que aparece en el footer y copyright</p>
+                            </div>
+
+                            <!-- Site Description -->
+                            <div>
+                                <label for="site_description" class="block text-sm font-semibold text-secondary-700 mb-2">
+                                    Descripción del Sitio *
+                                </label>
+                                <textarea name="site_description" id="site_description" required rows="3"
+                                          class="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                          placeholder="Descripción que aparece en el footer y meta tags">{{ old('site_description', $settings['site_description']) }}</textarea>
+                                <p class="text-xs text-secondary-500 mt-2">Descripción que aparece en el footer del blog</p>
                             </div>
 
                             <!-- Site Logo -->
@@ -101,31 +175,27 @@
                                 <label for="site_logo" class="block text-sm font-semibold text-secondary-700 mb-2">
                                     Logo del Blog
                                 </label>
-                                
+
                                 @if($settings['site_logo'])
                                 <div class="mb-4 p-4 bg-secondary-50 rounded-xl">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center space-x-4">
-                                            <img src="{{ asset('storage/' . $settings['site_logo']) }}" 
-                                                 alt="Logo actual" 
+                                            <img src="{{ asset('storage/' . $settings['site_logo']) }}"
+                                                 alt="Logo actual"
                                                  class="h-16 w-16 object-contain rounded-lg border border-secondary-200 bg-white">
                                             <div>
                                                 <p class="text-sm font-medium text-secondary-900">Logo actual</p>
                                                 <p class="text-xs text-secondary-500">Subido correctamente</p>
                                             </div>
                                         </div>
-                                        <form method="POST" action="{{ route('admin.blog-settings.remove-logo') }}" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    onclick="return confirm('¿Estás seguro de que quieres eliminar el logo?')"
-                                                    class="inline-flex items-center px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-lg transition-colors duration-200">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                Eliminar
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                                onclick="if(confirm('¿Estás seguro de que quieres eliminar el logo?')) { document.getElementById('delete-logo-form').submit(); }"
+                                                class="inline-flex items-center px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-lg transition-colors duration-200">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Eliminar
+                                        </button>
                                     </div>
                                 </div>
                                 @endif
@@ -135,6 +205,44 @@
                                 <p class="text-xs text-secondary-500 mt-2">
                                     Formatos soportados: JPG, PNG, GIF, SVG. Tamaño máximo: 2MB.
                                     <br>Recomendado: 200x60px para mejor visualización.
+                                </p>
+                            </div>
+
+                            <!-- Footer Logo -->
+                            <div>
+                                <label for="footer_logo" class="block text-sm font-semibold text-secondary-700 mb-2">
+                                    Logo del Footer
+                                </label>
+
+                                @if($settings['footer_logo'])
+                                <div class="mb-4 p-4 bg-secondary-50 rounded-xl">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <img src="{{ asset('storage/' . $settings['footer_logo']) }}"
+                                                 alt="Footer logo actual"
+                                                 class="h-16 w-16 object-contain rounded-lg border border-secondary-200 bg-white">
+                                            <div>
+                                                <p class="text-sm font-medium text-secondary-900">Logo del footer actual</p>
+                                                <p class="text-xs text-secondary-500">Subido correctamente</p>
+                                            </div>
+                                        </div>
+                                        <button type="button"
+                                                onclick="if(confirm('¿Estás seguro de que quieres eliminar el logo del footer?')) { document.getElementById('delete-footer-logo-form').submit(); }"
+                                                class="inline-flex items-center px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-semibold rounded-lg transition-colors duration-200">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <input type="file" name="footer_logo" id="footer_logo" accept="image/*"
+                                       class="block w-full text-sm text-secondary-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                                <p class="text-xs text-secondary-500 mt-2">
+                                    Logo específico para el footer (fondo oscuro). Si no se sube, se usa el logo principal.
+                                    <br>Recomendado: Logo en blanco o colores claros para mejor visibilidad.
                                 </p>
                             </div>
 
@@ -163,20 +271,55 @@
                         </svg>
                         Vista Previa
                     </h3>
-                    <div class="bg-secondary-50 rounded-xl p-4">
-                        <div class="flex items-center space-x-3">
-                            @if($settings['site_logo'])
-                            <img src="{{ asset('storage/' . $settings['site_logo']) }}" 
-                                 alt="Logo" 
-                                 class="h-10 w-auto object-contain">
-                            @else
-                            <div class="h-10 w-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-                                <span class="text-white font-bold text-sm">{{ substr($settings['site_name'], 0, 2) }}</span>
+                    <div class="bg-secondary-50 rounded-xl p-4 space-y-4">
+                        <!-- Navbar Preview -->
+                        <div>
+                            <p class="text-xs font-semibold text-secondary-600 mb-2">NAVBAR:</p>
+                            <div class="flex items-center space-x-3">
+                                @if($settings['site_logo'])
+                                <img src="{{ asset('storage/' . $settings['site_logo']) }}"
+                                     alt="Logo"
+                                     class="h-8 w-auto object-contain">
+                                @else
+                                <div class="h-8 w-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white font-bold text-xs">{{ substr($settings['navbar_text'], 0, 2) }}</span>
+                                </div>
+                                @endif
+                                <span class="text-sm font-semibold text-secondary-900">{{ $settings['navbar_text'] }}</span>
                             </div>
-                            @endif
-                            <span class="text-lg font-semibold text-secondary-900">{{ $settings['site_name'] }}</span>
                         </div>
-                        <p class="text-xs text-secondary-500 mt-2">Así se verá en la navegación</p>
+
+                        <!-- Header Preview -->
+                        <div>
+                            <p class="text-xs font-semibold text-secondary-600 mb-2">HEADER:</p>
+                            <div class="bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg p-3">
+                                <h2 class="text-lg font-bold text-white">{{ $settings['header_text'] }}</h2>
+                            </div>
+                        </div>
+
+                        <!-- Footer Preview -->
+                        <div>
+                            <p class="text-xs font-semibold text-secondary-600 mb-2">FOOTER:</p>
+                            <div class="bg-gray-800 rounded-lg p-3">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    @if($settings['footer_logo'])
+                                    <img src="{{ asset('storage/' . $settings['footer_logo']) }}"
+                                         alt="Footer Logo"
+                                         class="h-6 w-auto object-contain">
+                                    @elseif($settings['site_logo'])
+                                    <img src="{{ asset('storage/' . $settings['site_logo']) }}"
+                                         alt="Logo"
+                                         class="h-6 w-auto object-contain">
+                                    @else
+                                    <div class="h-6 w-6 bg-gradient-to-br from-primary-500 to-accent-500 rounded flex items-center justify-center">
+                                        <span class="text-white font-bold text-xs">{{ substr($settings['footer_text'], 0, 2) }}</span>
+                                    </div>
+                                    @endif
+                                    <span class="text-sm font-semibold text-white">{{ $settings['footer_text'] }}</span>
+                                </div>
+                                <p class="text-xs text-gray-300">{{ $settings['site_description'] }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -223,4 +366,15 @@
         </div>
     </div>
 </div>
+
+<!-- Forms de eliminación (fuera del form principal) -->
+<form id="delete-logo-form" method="POST" action="{{ route('admin.blog-settings.remove-logo') }}" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
+<form id="delete-footer-logo-form" method="POST" action="{{ route('admin.blog-settings.remove-footer-logo') }}" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
 @endsection
