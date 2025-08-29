@@ -470,11 +470,25 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center">
-                        <x-application-logo class="block h-8 w-auto fill-current text-white" />
-                        <span class="ml-2 text-lg font-bold">TechBlog</span>
+                        @php
+                            $siteLogo = \App\Models\BlogSetting::get('site_logo');
+                            $siteName = \App\Models\BlogSetting::get('site_name', config('app.name'));
+                            $siteDescription = \App\Models\BlogSetting::get('site_description', 'Tu fuente confiable de información sobre tecnología, programación y desarrollo web.');
+                        @endphp
+
+                        @if($siteLogo)
+                            <img src="{{ asset('storage/' . $siteLogo) }}"
+                                 alt="{{ $siteName }}"
+                                 class="h-8 w-auto object-contain mr-3">
+                        @else
+                            <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center mr-3">
+                                <span class="text-white font-bold text-xs">{{ substr($siteName, 0, 2) }}</span>
+                            </div>
+                        @endif
+                        <span class="ml-2 text-lg font-bold">{{ $siteName }}</span>
                     </div>
                     <p class="mt-4 text-gray-300">
-                        Tu fuente confiable de información sobre tecnología, programación y desarrollo web.
+                        {{ $siteDescription }}
                     </p>
                 </div>
 
@@ -499,7 +513,7 @@
 
             <div class="mt-8 border-t border-gray-700 pt-8">
                 <p class="text-center text-gray-400">
-                    © {{ date('Y') }} TechBlog. Todos los derechos reservados.
+                    © {{ date('Y') }} {{ \App\Models\BlogSetting::get('site_name', config('app.name')) }}. Todos los derechos reservados.
                 </p>
             </div>
         </div>

@@ -174,6 +174,62 @@
                     </div>
                 </div>
 
+                <!-- Featured Image Section -->
+                <div class="space-y-6">
+                    <div class="border-b border-secondary-200 pb-4">
+                        <h3 class="text-lg font-semibold text-secondary-900 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Imagen de Portada
+                        </h3>
+                        <p class="text-secondary-600 text-sm mt-1">Imagen principal que aparecerá en el blog (opcional)</p>
+                    </div>
+
+                    <!-- Current Image Preview -->
+                    @if($post->featured_image)
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-secondary-700 mb-2">
+                            Imagen Actual
+                        </label>
+                        <div class="relative inline-block">
+                            <img src="{{ asset('storage/' . $post->featured_image) }}"
+                                 alt="Imagen actual"
+                                 class="w-32 h-32 object-cover rounded-xl border border-secondary-200">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-200 rounded-xl flex items-center justify-center">
+                                <span class="text-white text-xs opacity-0 hover:opacity-100 transition-opacity duration-200">Vista previa</span>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div>
+                        <label for="featured_image" class="block text-sm font-semibold text-secondary-700 mb-2">
+                            {{ $post->featured_image ? 'Cambiar Imagen de Portada' : 'Imagen de Portada' }}
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-secondary-300 border-dashed rounded-xl hover:border-primary-400 transition-colors duration-200">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-secondary-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-secondary-600">
+                                    <label for="featured_image" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                        <span>{{ $post->featured_image ? 'Cambiar imagen' : 'Subir una imagen' }}</span>
+                                        <input id="featured_image" name="featured_image" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                    <p class="pl-1">o arrastra y suelta</p>
+                                </div>
+                                <p class="text-xs text-secondary-500">
+                                    PNG, JPG, GIF hasta 2MB
+                                </p>
+                            </div>
+                        </div>
+                        @error('featured_image')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
                 <!-- Settings -->
                 <div class="space-y-6">
                     <div class="border-b border-secondary-200 pb-4">
