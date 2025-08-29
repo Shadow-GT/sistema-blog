@@ -243,12 +243,12 @@
             promotion:false,
             plugins: [
                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                'insertdatetime', 'media', 'table', 'help', 'wordcount', 'codesample'
             ],
             toolbar: 'undo redo | blocks | ' +
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | help',
+            'removeformat codesample ',
             skin: 'oxide',
             skin_url: '/node_modules/tinymce/skins/ui/oxide/',
             content_css: '/node_modules/tinymce/skins/content/default/content.min.css',

@@ -36,3 +36,5 @@ import 'tinymce/plugins/table';
 import 'tinymce/plugins/autoresize';
 import 'tinymce/plugins/preview';
 import 'tinymce/plugins/wordcount';
+import 'tinymce/plugins/codesample';
+import 'tinymce/plugins/code';
