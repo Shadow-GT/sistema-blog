@@ -235,6 +235,8 @@
                         @if(auth()->user()->canModerate())
                         <div class="flex items-center">
                             <div class="flex items-center h-5">
+                                <!-- Campo oculto para asegurar que siempre se envíe un valor -->
+                                <input type="hidden" name="is_featured" value="0">
                                 <input type="checkbox" name="is_featured" id="is_featured" value="1"
                                        {{ old('is_featured') ? 'checked' : '' }}
                                        class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2">
