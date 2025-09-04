@@ -129,7 +129,7 @@
                             <span class="font-medium">{{ $post->user->name }}</span>
                         </div>
                         <div class="flex items-center gap-4 text-secondary-400">
-                            <span>{{ $post->published_at->format('d M Y') }}</span>
+                            <span>{{ $post->published_at ? $post->published_at->format('d M Y') : $post->created_at->format('d M Y') }}</span>
                             <span class="flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -252,7 +252,7 @@
                             <span class="font-medium">{{ $post->user->name }}</span>
                         </div>
                         <div class="flex items-center gap-3 text-secondary-400">
-                            <span>{{ $post->published_at->format('d M Y') }}</span>
+                            <span>{{ $post->published_at ? $post->published_at->format('d M Y') : $post->created_at->format('d M Y') }}</span>
                             <span class="flex items-center">
                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

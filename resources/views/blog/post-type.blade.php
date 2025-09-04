@@ -96,7 +96,7 @@
                             <span>Por {{ $post->user->name }}</span>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <span>{{ $post->published_at->format('d M Y') }}</span>
+                            <span>{{ $post->published_at ? $post->published_at->format('d M Y') : $post->created_at->format('d M Y') }}</span>
                             <span>•</span>
                             <span>{{ $post->views_count }} vistas</span>
                         </div>

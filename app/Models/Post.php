@@ -51,6 +51,18 @@ class Post extends Model
             if (empty($post->slug)) {
                 $post->slug = Str::slug($post->title);
             }
+
+            // Establecer published_at cuando se crea con status published
+            if ($post->status === 'published' && !$post->published_at) {
+                $post->published_at = now();
+            }
+        });
+
+        static::updating(function ($post) {
+            // Establecer published_at cuando el status cambia a published
+            if ($post->isDirty('status') && $post->status === 'published' && !$post->published_at) {
+                $post->published_at = now();
+            }
         });
     }
 
