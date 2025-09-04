@@ -1,0 +1,13 @@
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#grad2)"/>
+  <text x="400" y="180" font-family="Arial, sans-serif" font-size="36" font-weight="bold" text-anchor="middle" fill="white">Artículo del Blog</text>
+  <text x="400" y="220" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#E0E7FF">Contenido interesante y de calidad</text>
+  <circle cx="400" cy="300" r="30" fill="rgba(255,255,255,0.2)"/>
+  <text x="400" y="310" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="white">📄</text>
+</svg>

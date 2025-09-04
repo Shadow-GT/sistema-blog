@@ -2,10 +2,22 @@
 
 @php
     $siteName = \App\Models\BlogSetting::get('site_name', config('app.name'));
+    $siteDescription = \App\Models\BlogSetting::get('site_description', 'Descubre los últimos artículos en ' . $siteName . '. Contenido de calidad sobre diversos temas.');
+    $siteLogo = \App\Models\BlogSetting::get('site_logo') ? asset('storage/' . \App\Models\BlogSetting::get('site_logo')) : asset('images/default-og-image.svg');
 @endphp
 
 @section('title', $siteName . ' - Blog')
-@section('description', 'Descubre los últimos artículos en ' . $siteName . '. Contenido de calidad sobre diversos temas.')
+@section('description', $siteDescription)
+
+{{-- Open Graph / Facebook --}}
+@section('og_title', $siteName . ' - Blog')
+@section('og_description', $siteDescription)
+@section('og_image', $siteLogo)
+
+{{-- Twitter Cards --}}
+@section('twitter_title', $siteName . ' - Blog')
+@section('twitter_description', $siteDescription)
+@section('twitter_image', $siteLogo)
 
 @section('content')
 <!-- Hero Section -->

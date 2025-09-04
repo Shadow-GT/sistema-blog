@@ -8,6 +8,23 @@
     <title>@yield('title', \App\Models\BlogSetting::get('site_name', config('app.name')))</title>
     <meta name="description" content="@yield('description', 'Blog de ' . \App\Models\BlogSetting::get('site_name', config('app.name')) . '. Contenido de calidad sobre diversos temas.')">
 
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('og_title', \App\Models\BlogSetting::get('site_name', config('app.name')))">
+    <meta property="og:description" content="@yield('og_description', 'Blog de ' . \App\Models\BlogSetting::get('site_name', config('app.name')) . '. Contenido de calidad sobre diversos temas.')">
+    <meta property="og:image" content="@yield('og_image', asset('images/default-og-image.svg'))">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="{{ \App\Models\BlogSetting::get('site_name', config('app.name')) }}">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="@yield('twitter_title', \App\Models\BlogSetting::get('site_name', config('app.name')))">
+    <meta name="twitter:description" content="@yield('twitter_description', 'Blog de ' . \App\Models\BlogSetting::get('site_name', config('app.name')) . '. Contenido de calidad sobre diversos temas.')">
+    <meta name="twitter:image" content="@yield('twitter_image', asset('images/default-og-image.svg'))">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
