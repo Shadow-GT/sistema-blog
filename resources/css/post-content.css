@@ -177,78 +177,32 @@
     .post-content {
         font-size: 0.95rem;
     }
-    
+
     .post-content h1 {
         font-size: 1.875rem;
     }
-    
+
     .post-content h2 {
         font-size: 1.5rem;
     }
-    
+
     .post-content h3 {
         font-size: 1.25rem;
     }
-    
+
     .post-content pre {
         padding: 1rem;
         font-size: 0.8rem;
     }
-    
+
     .post-content table {
         font-size: 0.875rem;
     }
-    
+
     .post-content th,
     .post-content td {
         padding: 0.5rem;
     }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .post-content {
-        color: #d1d5db;
-    }
-    
-    .post-content h1,
-    .post-content h2 {
-        color: #f9fafb;
-    }
-    
-    .post-content h3,
-    .post-content h4 {
-        color: #e5e7eb;
-    }
-    
-    .post-content h2 {
-        border-bottom-color: #374151;
-    }
-    
-    .post-content blockquote {
-        background-color: #1f2937;
-        color: #d1d5db;
-    }
-    
-    .post-content code {
-        background-color: #374151;
-        color: #fbbf24;
-    }
-    
-    .post-content table {
-        background-color: #1f2937;
-    }
-    
-    .post-content th {
-        background-color: #374151;
-        color: #f9fafb;
-    }
-    
-    .post-content td {
-        border-bottom-color: #374151;
-    }
-    
-    .post-content tr:hover {
-        background-color: #374151;
-    }
-}
+
