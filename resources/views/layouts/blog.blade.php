@@ -82,14 +82,14 @@
                         @if($siteLogo)
                             <img src="{{ asset('storage/' . $siteLogo) }}"
                                  alt="{{ $navbarText }}"
-                                 class="h-10 w-auto object-contain mr-3 group-hover:scale-105 transition-transform duration-200">
+                                 class="h-10 w-auto object-contain md:mr-3 group-hover:scale-105 transition-transform duration-200">
                         @else
-                            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center mr-3 group-hover:scale-105 transition-transform duration-200">
+                            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center md:mr-3 group-hover:scale-105 transition-transform duration-200">
                                 <span class="text-white font-bold text-sm">{{ substr($navbarText, 0, 2) }}</span>
                             </div>
                         @endif
 
-                        <span class="text-2xl font-bold bg-gradient-to-r from-secondary-900 to-primary-700 bg-clip-text text-transparent">{{ $navbarText }}</span>
+                        <span class="hidden md:inline text-2xl font-bold bg-gradient-to-r from-secondary-900 to-primary-700 bg-clip-text text-transparent">{{ $navbarText }}</span>
                     </a>
 
                     <!-- Navigation Links -->
