@@ -47,14 +47,29 @@
             width: 4px;
         }
         .mobile-menu::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #f8fafc;
         }
         .mobile-menu::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
+            background: #cbd5e1;
             border-radius: 2px;
         }
         .mobile-menu::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+            background: #94a3b8;
+        }
+
+        /* Mobile menu backdrop blur effect */
+        .mobile-menu-backdrop {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Smooth animations for mobile menu items */
+        .mobile-menu-item {
+            transform: translateX(0);
+            transition: all 0.2s ease-in-out;
+        }
+        .mobile-menu-item:hover {
+            transform: translateX(4px);
         }
 
         /* Hover effects for dropdown items */
@@ -356,8 +371,11 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">Iniciar Sesión</a>
-                        <a href="{{ route('register') }}" class="ml-4 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">Registrarse</a>
+                        <!-- Hide login/register buttons on mobile since they're in the mobile menu -->
+                        <div class="hidden sm:flex sm:items-center sm:space-x-4">
+                            <a href="{{ route('login') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">Iniciar Sesión</a>
+                            <a href="{{ route('register') }}" class="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">Registrarse</a>
+                        </div>
                     @endauth
 
                     <!-- Mobile menu button -->
@@ -374,104 +392,186 @@
                         <!-- Mobile menu -->
                         <div x-show="mobileOpen"
                              x-cloak
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-100"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 -translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-2"
                              @click.away="mobileOpen = false"
-                             class="absolute top-16 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-50">
-                            <div class="px-4 py-2 space-y-1">
-                                <a href="{{ route('blog.index') }}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">
+                             class="fixed top-20 left-0 right-0 bg-white/95 backdrop-blur-md shadow-xl border-t border-gray-200 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto mobile-menu mobile-menu-backdrop">
+                            <div class="px-4 py-3 space-y-1">
+                                <a href="{{ route('blog.index') }}" @click="mobileOpen = false" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group mobile-menu-item">
+                                    <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
                                     Inicio
                                 </a>
 
                                 <!-- Mobile Categories -->
-                                <div class="space-y-1">
-                                    <div class="px-3 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                        Categorías
+                                <div class="border-t border-gray-100 pt-2" x-data="{ categoriesOpen: false }">
+                                    <button @click="categoriesOpen = !categoriesOpen" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                            </svg>
+                                            Categorías
+                                        </div>
+                                        <svg class="w-4 h-4 transform transition-transform duration-200" :class="{ 'rotate-180': categoriesOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="categoriesOpen"
+                                         x-cloak
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 max-h-0"
+                                         x-transition:enter-end="opacity-100 max-h-96"
+                                         x-transition:leave="transition ease-in duration-150"
+                                         x-transition:leave-start="opacity-100 max-h-96"
+                                         x-transition:leave-end="opacity-0 max-h-0"
+                                         class="overflow-hidden">
+                                        @php
+                                            $mobileCategories = \App\Models\Category::active()
+                                                ->withCount(['posts as published_posts_count' => function ($query) {
+                                                    $query->where('status', 'published');
+                                                }])
+                                                ->orderBy('name')
+                                                ->take(6) // Limitar a 6 categorías para mantenerlo compacto
+                                                ->get();
+                                        @endphp
+                                        <div class="py-1 space-y-0.5">
+                                            @foreach($mobileCategories as $category)
+                                            <a href="{{ route('blog.category', $category->slug) }}" @click="mobileOpen = false" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group mobile-menu-item">
+                                                <div class="w-2.5 h-2.5 rounded-full mr-2.5 group-hover:scale-110 transition-transform duration-200" style="background-color: {{ $category->color }}"></div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="font-medium truncate">{{ $category->name }}</div>
+                                                </div>
+                                                <div class="text-xs text-gray-400 ml-2">{{ $category->published_posts_count }}</div>
+                                            </a>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                    @php
-                                        $mobileCategories = \App\Models\Category::active()->orderBy('name')->get();
-                                    @endphp
-                                    @foreach($mobileCategories as $category)
-                                    <a href="{{ route('blog.category', $category->slug) }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                                        <div class="w-2 h-2 rounded-full mr-3" style="background-color: {{ $category->color }}"></div>
-                                        {{ $category->name }}
-                                    </a>
-                                    @endforeach
                                 </div>
 
                                 <!-- Mobile Post Types -->
-                                <div class="space-y-2">
-                                    <div class="px-4 py-3 text-sm font-bold text-secondary-700 uppercase tracking-wider flex items-center">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4-4m4 4l-4 4M1 12h4m14 0H9m10 0H5" />
+                                <div class="border-t border-gray-100 pt-2" x-data="{ typesOpen: false }">
+                                    <button @click="typesOpen = !typesOpen" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4-4m4 4l-4 4M1 12h4m14 0H9m10 0H5" />
+                                            </svg>
+                                            Tipos de Contenido
+                                        </div>
+                                        <svg class="w-4 h-4 transform transition-transform duration-200" :class="{ 'rotate-180': typesOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                         </svg>
-                                        Tipos de Contenido
+                                    </button>
+                                    <div x-show="typesOpen"
+                                         x-cloak
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 max-h-0"
+                                         x-transition:enter-end="opacity-100 max-h-96"
+                                         x-transition:leave="transition ease-in duration-150"
+                                         x-transition:leave-start="opacity-100 max-h-96"
+                                         x-transition:leave-end="opacity-0 max-h-0"
+                                         class="overflow-hidden">
+                                        @php
+                                            $mobilePostTypes = \App\Models\PostType::active()
+                                                ->withCount(['posts as published_posts_count' => function ($query) {
+                                                    $query->where('status', 'published');
+                                                }])
+                                                ->orderBy('name')
+                                                ->take(5) // Limitar a 5 tipos para mantenerlo compacto
+                                                ->get();
+                                        @endphp
+                                        <div class="py-1 space-y-0.5">
+                                            @foreach($mobilePostTypes as $postType)
+                                            <a href="{{ route('blog.post-type', $postType->slug) }}" @click="mobileOpen = false" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group mobile-menu-item">
+                                                <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-accent-100 to-accent-200 flex items-center justify-center mr-2.5 group-hover:scale-110 transition-transform duration-200">
+                                                    <span class="text-xs">{{ $postType->icon ?? '📄' }}</span>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="font-medium truncate">{{ $postType->name }}</div>
+                                                </div>
+                                                <div class="text-xs text-gray-400 ml-2">{{ $postType->published_posts_count }}</div>
+                                            </a>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                    @php
-                                        $mobilePostTypes = \App\Models\PostType::active()
-                                            ->withCount(['posts as published_posts_count' => function ($query) {
-                                                $query->where('status', 'published');
-                                            }])
-                                            ->orderBy('name')
-                                            ->get();
-                                    @endphp
-                                    @foreach($mobilePostTypes as $postType)
-                                    <a href="{{ route('blog.post-type', $postType->slug) }}" class="flex items-center px-6 py-3 text-sm text-secondary-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 group">
-                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-100 to-accent-200 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-200">
-                                            <span class="text-sm">{{ $postType->icon ?? '📄' }}</span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <div class="font-medium">{{ $postType->name }}</div>
-                                            <div class="text-xs text-secondary-500">{{ $postType->published_posts_count }} publicaciones</div>
-                                        </div>
-                                        <svg class="w-4 h-4 text-secondary-400 group-hover:text-primary-500 opacity-0 group-hover:opacity-100 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </a>
-                                    @endforeach
                                 </div>
 
                                 @auth
                                 <!-- Mobile User Menu -->
-                                <div class="border-t border-gray-200 pt-4 mt-4">
-                                    <div class="px-3 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                        Mi Cuenta
+                                <div class="border-t border-gray-100 pt-2 mt-2 space-y-1">
+                                    <!-- User info card - más compacta -->
+                                    <div class="mx-4 p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-2.5">
+                                                <span class="text-white font-bold text-xs">{{ substr(Auth::user()->name, 0, 2) }}</span>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="font-medium text-gray-900 text-sm truncate">{{ Auth::user()->name }}</div>
+                                                <div class="text-xs text-blue-600 capitalize">{{ Auth::user()->role }}</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <a href="{{ route('dashboard') }}" class="block px-6 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                                        Dashboard
-                                    </a>
-                                    @if(Auth::user()->canPublish())
-                                    <a href="{{ route('posts.index') }}" class="block px-6 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                                        Mis Posts
-                                    </a>
-                                    @endif
-                                    @if(Auth::user()->canModerate())
-                                    <a href="{{ route('moderation.index') }}" class="block px-6 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                                        Moderación
-                                    </a>
-                                    @endif
-                                    <a href="{{ route('profile.edit') }}" class="block px-6 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                                        Mi Perfil
-                                    </a>
-                                    <form method="POST" action="{{ route('logout') }}" class="mt-2">
-                                        @csrf
-                                        <button type="submit" class="block w-full text-left px-6 py-2 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md">
-                                            Cerrar Sesión
-                                        </button>
-                                    </form>
+
+                                    <div class="space-y-0.5">
+                                        <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
+                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                            </svg>
+                                            Dashboard
+                                        </a>
+                                        @if(Auth::user()->canPublish())
+                                        <a href="{{ route('posts.index') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
+                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Mis Posts
+                                        </a>
+                                        @endif
+                                        @if(Auth::user()->canModerate())
+                                        <a href="{{ route('moderation.index') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
+                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Moderación
+                                        </a>
+                                        @endif
+                                        <a href="{{ route('profile.edit') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
+                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            Mi Perfil
+                                        </a>
+                                        <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                                            @csrf
+                                            <button type="submit" class="flex items-center w-full px-6 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 group">
+                                                <svg class="w-4 h-4 mr-2.5 text-red-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                </svg>
+                                                Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                                 @else
-                                <div class="border-t border-gray-200 pt-4 mt-4 space-y-1">
-                                    <a href="{{ route('login') }}" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md">
-                                        Iniciar Sesión
-                                    </a>
-                                    <a href="{{ route('register') }}" class="block px-3 py-2 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
-                                        Registrarse
-                                    </a>
+                                <div class="border-t border-gray-100 pt-2 mt-2">
+                                    <div class="px-4 space-y-2">
+                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 border border-gray-200 rounded-lg transition-all duration-200 group">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                            </svg>
+                                            Iniciar Sesión
+                                        </a>
+                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                            </svg>
+                                            Registrarse
+                                        </a>
+                                    </div>
                                 </div>
                                 @endauth
                             </div>
