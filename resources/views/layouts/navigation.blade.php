@@ -96,6 +96,9 @@
                                 <x-dropdown-link :href="route('admin.author-requests.index')">
                                     {{ __('Solicitudes de Autor') }}
                                 </x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.contacts.index')">
+                                    {{ __('Mensajes de Contacto') }}
+                                </x-dropdown-link>
                                 <div class="border-t border-gray-100"></div>
                                 <x-dropdown-link :href="route('admin.blog-settings.index')">
                                     {{ __('Configuración del Blog') }}

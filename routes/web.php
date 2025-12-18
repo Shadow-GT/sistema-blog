@@ -74,6 +74,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::delete('/footer-logo', [\App\Http\Controllers\Admin\BlogSettingsController::class, 'removeFooterLogo'])->name('remove-footer-logo');
     });
 
+    // Mensajes de contacto
+    Route::prefix('admin/contacts')->name('admin.contacts.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ContactController::class, 'index'])->name('index');
+        Route::get('/{contact}', [\App\Http\Controllers\Admin\ContactController::class, 'show'])->name('show');
+        Route::delete('/{contact}', [\App\Http\Controllers\Admin\ContactController::class, 'destroy'])->name('destroy');
+    });
+
     // Moderación (alias para admin posts)
     Route::get('/moderation', [\App\Http\Controllers\Admin\PostController::class, 'index'])->name('moderation.index');
     Route::get('/admin/posts', [\App\Http\Controllers\Admin\PostController::class, 'index'])->name('admin.posts.index');
