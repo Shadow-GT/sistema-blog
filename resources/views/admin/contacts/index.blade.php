@@ -15,7 +15,7 @@
                 </div>
                 Mensajes de Contacto
             </h1>
-            <p class="text-xl text-secondary-600 mt-2">Mensajes recibidos desde tu página personal</p>
+            <p class="text-xl text-secondary-600 mt-2">Mensajes recibidos desde tus páginas</p>
         </div>
 
         <!-- Success Message -->
@@ -40,22 +40,22 @@
                     <div class="text-sm text-secondary-600">Hoy</div>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-blue-600">{{ $stats['this_week'] }}</div>
-                    <div class="text-sm text-secondary-600">Esta Semana</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ $stats['personal'] }}</div>
+                    <div class="text-sm text-secondary-600">Personal Web</div>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-indigo-600">{{ $stats['this_month'] }}</div>
-                    <div class="text-sm text-secondary-600">Este Mes</div>
+                    <div class="text-2xl font-bold text-purple-600">{{ $stats['servicios'] }}</div>
+                    <div class="text-sm text-secondary-600">Servicios</div>
                 </div>
             </div>
         </div>
 
-        <!-- Search -->
+        <!-- Search & Filter -->
         <div class="bg-white rounded-2xl shadow-soft border border-secondary-100 p-6 mb-8">
             <form method="GET" class="flex flex-col sm:flex-row gap-4">
                 <div class="flex-1">
                     <div class="relative">
-                        <input type="text" name="q" value="{{ $search }}" placeholder="Buscar por nombre, email o mensaje..."
+                        <input type="text" name="q" value="{{ $search }}" placeholder="Buscar por nombre, email, teléfono o mensaje..."
                                class="w-full pl-10 pr-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,19 +64,27 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors duration-200">
-                    Buscar
-                </button>
+                <div class="flex gap-3">
+                    <select name="source" class="px-4 py-3 border border-secondary-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
+                        <option value="">Todas las fuentes</option>
+                        <option value="personal" {{ $source === 'personal' ? 'selected' : '' }}>Personal Web</option>
+                        <option value="servicios" {{ $source === 'servicios' ? 'selected' : '' }}>Servicios</option>
+                    </select>
+                    <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-colors duration-200">
+                        Buscar
+                    </button>
+                </div>
             </form>
         </div>
 
-        <!-- Contacts Table -->
-        @if($contacts->count() > 0)
+        <!-- Messages Table -->
+        @if($messages->count() > 0)
         <div class="bg-white rounded-2xl shadow-soft border border-secondary-100 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-secondary-200">
                     <thead class="bg-secondary-50">
                         <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">Fuente</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">Remitente</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">Mensaje</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">Fecha</th>
@@ -84,36 +92,50 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-secondary-100">
-                        @foreach($contacts as $contact)
+                        @foreach($messages as $message)
                         <tr class="hover:bg-secondary-50 transition-colors duration-200">
                             <td class="px-6 py-4">
+                                @if($message->source === 'personal')
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                    Personal Web
+                                </span>
+                                @else
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                    Servicios
+                                </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center mr-3">
-                                        <span class="text-sm font-semibold text-white">{{ strtoupper(substr($contact->nombre, 0, 2)) }}</span>
+                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br {{ $message->source === 'personal' ? 'from-blue-400 to-blue-500' : 'from-purple-400 to-purple-500' }} flex items-center justify-center mr-3">
+                                        <span class="text-sm font-semibold text-white">{{ strtoupper(substr($message->nombre, 0, 2)) }}</span>
                                     </div>
                                     <div>
-                                        <div class="text-sm font-semibold text-secondary-900">{{ $contact->nombre }}</div>
-                                        <div class="text-sm text-secondary-500">{{ $contact->email }}</div>
+                                        <div class="text-sm font-semibold text-secondary-900">{{ $message->nombre }}</div>
+                                        <div class="text-sm text-secondary-500">{{ $message->email }}</div>
+                                        @if($message->telefono)
+                                        <div class="text-xs text-secondary-400">📞 {{ $message->telefono }}</div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <p class="text-sm text-secondary-700 max-w-md truncate">{{ $contact->short_message }}</p>
+                                <p class="text-sm text-secondary-700 max-w-md truncate">{{ $message->short_message }}</p>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-secondary-900">{{ $contact->created_at->format('d M Y') }}</div>
-                                <div class="text-xs text-secondary-500">{{ $contact->created_at->format('H:i') }}</div>
+                                <div class="text-sm text-secondary-900">{{ $message->created_at->format('d M Y') }}</div>
+                                <div class="text-xs text-secondary-500">{{ $message->created_at->format('H:i') }}</div>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('admin.contacts.show', $contact) }}" 
+                                    <a href="{{ route('admin.contacts.show', ['contact' => $message->id, 'source' => $message->source]) }}"
                                        class="inline-flex items-center px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-medium transition-colors duration-200">
                                         Ver
                                     </a>
-                                    <form action="{{ route('admin.contacts.destroy', $contact) }}" method="POST" class="inline">
+                                    <form action="{{ route('admin.contacts.destroy', ['contact' => $message->id, 'source' => $message->source]) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 class="inline-flex items-center px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-medium transition-colors duration-200"
                                                 onclick="return confirm('¿Eliminar este mensaje?')">
                                             Eliminar
@@ -128,7 +150,7 @@
             </div>
             <!-- Pagination -->
             <div class="px-6 py-4 border-t border-secondary-200">
-                {{ $contacts->links() }}
+                {{ $messages->links() }}
             </div>
         </div>
         @else
@@ -141,8 +163,8 @@
             </div>
             <h3 class="text-lg font-semibold text-secondary-900 mb-2">No hay mensajes</h3>
             <p class="text-secondary-600">
-                @if($search)
-                    No se encontraron mensajes con esa búsqueda.
+                @if($search || $source)
+                    No se encontraron mensajes con esos filtros.
                 @else
                     Aún no has recibido mensajes de contacto.
                 @endif
