@@ -15,11 +15,19 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
 
-    'allowed_methods' => ['*'],
+    'allowed_methods' => ['GET'],
 
-    'allowed_origins' => ['*'],
+    // Solo el navegador desde estos orígenes puede consumir la API de forma cruzada.
+    // (Los datos son públicos; esto evita el uso cruzado casual desde otros sitios.)
+    'allowed_origins' => [
+        'https://edwinzenteno.com',
+        'https://www.edwinzenteno.com',
+        'http://localhost',
+        'http://localhost:8080',
+        'http://127.0.0.1',
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -27,7 +35,7 @@ return [
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    'max_age' => 3600,
 
     'supports_credentials' => false,
 
