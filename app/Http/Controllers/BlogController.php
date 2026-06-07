@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostType;
+use App\Models\User;
 use App\Services\SearchService;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,9 @@ class BlogController extends Controller
         $filters = $request->only(['search', 'category', 'type', 'author', 'sort', 'featured']);
         $posts = $searchService->searchPosts($filters)->paginate(12);
 
-        $featuredPosts = Post::published()->featured()->latest('published_at')->take(3)->get();
+        $featuredPosts = Post::published()->featured()
+            ->with(['category', 'postType', 'user'])
+            ->latest('published_at')->take(3)->get();
         $categories = Category::active()->withCount(['posts as published_posts_count' => function ($query) {
             $query->where('status', 'published');
         }])->get();
@@ -26,7 +29,13 @@ class BlogController extends Controller
             $query->where('status', 'published');
         }])->get();
 
-        return view('blog.index', compact('posts', 'featuredPosts', 'categories', 'postTypes'));
+        $stats = [
+            'posts' => Post::published()->count(),
+            'categories' => Category::active()->count(),
+            'authors' => User::where('role', '!=', 'guest')->count(),
+        ];
+
+        return view('blog.index', compact('posts', 'featuredPosts', 'categories', 'postTypes', 'stats'));
     }
 
     /**

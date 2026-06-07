@@ -59,6 +59,23 @@ export default {
                     900: '#701a75',
                     950: '#4a044e',
                 },
+                // Colores semánticos para estados (badges, alertas, botones de acción)
+                success: {
+                    50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 500: '#10b981',
+                    600: '#059669', 700: '#047857', 800: '#065f46',
+                },
+                warning: {
+                    50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 500: '#f59e0b',
+                    600: '#d97706', 700: '#b45309', 800: '#92400e',
+                },
+                danger: {
+                    50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 500: '#f43f5e',
+                    600: '#e11d48', 700: '#be123c', 800: '#9f1239',
+                },
+                info: {
+                    50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 500: '#0ea5e9',
+                    600: '#0284c7', 700: '#0369a1', 800: '#075985',
+                },
             },
             spacing: {
                 '18': '4.5rem',

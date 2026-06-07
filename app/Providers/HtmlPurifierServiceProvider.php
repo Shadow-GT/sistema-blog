@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\HtmlSanitizer;
 use Illuminate\Support\ServiceProvider;
 
 class HtmlPurifierServiceProvider extends ServiceProvider
@@ -11,7 +12,8 @@ class HtmlPurifierServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Una sola instancia por request (construir HTMLPurifier no es barato).
+        $this->app->singleton(HtmlSanitizer::class);
     }
 
     /**

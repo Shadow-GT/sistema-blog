@@ -20,20 +20,38 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->sentence(6, true);
+        $title = rtrim(fake()->unique()->sentence(fake()->numberBetween(4, 8)), '.');
+        $isPublished = fake()->boolean(75);
+
+        $content = collect(fake()->paragraphs(fake()->numberBetween(4, 9)))
+            ->map(fn ($p) => '<p>' . $p . '</p>')
+            ->implode("\n");
 
         return [
-            'title' => $title,
-            'slug' => Str::slug($title),
-            'excerpt' => fake()->paragraph(2),
-            'content' => fake()->paragraphs(8, true),
-            'status' => fake()->randomElement(['draft', 'pending', 'published']),
-            'is_featured' => fake()->boolean(20), // 20% probabilidad de ser destacado
-            'views_count' => fake()->numberBetween(0, 1000),
-            'published_at' => fake()->dateTimeBetween('-6 months', 'now'),
-            'user_id' => User::factory(),
-            'category_id' => Category::factory(),
-            'post_type_id' => PostType::factory(),
+            'title' => Str::ucfirst($title),
+            'slug' => Str::slug($title) . '-' . fake()->unique()->numberBetween(1, 1_000_000),
+            'excerpt' => fake()->sentence(fake()->numberBetween(12, 22)),
+            'content' => $content,
+            'featured_image' => null,
+            'status' => $isPublished ? 'published' : fake()->randomElement(['pending', 'pending', 'draft']),
+            'is_featured' => fake()->boolean(15),
+            'views_count' => fake()->numberBetween(0, 4000),
+            'published_at' => $isPublished ? fake()->dateTimeBetween('-8 months', 'now') : null,
+            // Usa registros existentes; cae a factory solo si la tabla está vacía.
+            'user_id' => fn () => User::where('role', '!=', 'guest')->inRandomOrder()->value('id') ?? User::factory(),
+            'category_id' => fn () => Category::inRandomOrder()->value('id') ?? Category::factory(),
+            'post_type_id' => fn () => PostType::inRandomOrder()->value('id') ?? PostType::factory(),
         ];
+    }
+
+    /**
+     * Estado: post publicado.
+     */
+    public function published(): static
+    {
+        return $this->state(fn () => [
+            'status' => 'published',
+            'published_at' => fake()->dateTimeBetween('-8 months', 'now'),
+        ]);
     }
 }

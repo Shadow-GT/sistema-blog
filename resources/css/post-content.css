@@ -65,8 +65,8 @@
 }
 
 .post-content blockquote {
-    border-left: 4px solid #3b82f6;
-    background-color: #f8fafc;
+    border-left: 4px solid #0ea5e9;
+    background-color: #f0f9ff;
     padding: 1rem 1.5rem;
     margin: 2rem 0;
     font-style: italic;
@@ -98,18 +98,18 @@
 }
 
 .post-content a {
-    color: #3b82f6;
+    color: #0284c7;
     text-decoration: underline;
     transition: color 0.2s ease;
 }
 
 .post-content a:hover {
-    color: #1d4ed8;
+    color: #0369a1;
 }
 
 .post-content code {
-    background-color: #f3f4f6;
-    color: #dc2626;
+    background-color: #f1f5f9;
+    color: #be123c;
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.875rem;

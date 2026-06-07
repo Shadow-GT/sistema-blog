@@ -7,6 +7,7 @@ use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostTypeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +26,10 @@ Route::get('/', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/post/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/category/{category:slug}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/type/{postType:slug}', [BlogController::class, 'postType'])->name('blog.post-type');
+
+// SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Rutas para comentarios (accesibles para invitados)
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');

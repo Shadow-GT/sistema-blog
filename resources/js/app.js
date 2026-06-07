@@ -6,13 +6,6 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
-import FroalaEditor from 'froala-editor'
-
-import 'froala-editor/css/froala_editor.pkgd.css'
-import 'froala-editor/js/plugins.pkgd.min.js'
-
-window.FroalaEditor = FroalaEditor;
-
 import tinymce from 'tinymce/tinymce';
 window.tinymce = tinymce; // Hacerlo disponible globalmente
 

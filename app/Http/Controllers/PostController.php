@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostType;
+use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -14,6 +15,10 @@ use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    public function __construct(private HtmlSanitizer $sanitizer)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -57,8 +62,8 @@ class PostController extends Controller
             $data['slug'] = Str::slug($data['title']);
         }
 
-        // Sanitizar contenido HTML
-        $data['content'] = $this->sanitizeHtmlContent($data['content']);
+        // Sanitizar contenido HTML con HTMLPurifier (allowlist estricta)
+        $data['content'] = $this->sanitizer->clean($data['content']);
 
         // Manejar imagen destacada
         if ($request->hasFile('featured_image')) {
@@ -130,8 +135,8 @@ class PostController extends Controller
             $data['slug'] = Str::slug($data['title']);
         }
 
-        // Sanitizar contenido HTML
-        $data['content'] = $this->sanitizeHtmlContent($data['content']);
+        // Sanitizar contenido HTML con HTMLPurifier (allowlist estricta)
+        $data['content'] = $this->sanitizer->clean($data['content']);
 
         // Manejar imagen destacada
         if ($request->hasFile('featured_image')) {
@@ -192,23 +197,5 @@ class PostController extends Controller
         }
 
         return response()->json(['error' => 'No file uploaded'], 400);
-    }
-
-    /**
-     * Sanitize HTML content to prevent XSS attacks.
-     * Basic implementation - for production use HTMLPurifier or similar.
-     */
-    private function sanitizeHtmlContent($content)
-    {
-        // For now, we'll allow the content as-is since TinyMCE provides some protection
-        // In production, you should use HTMLPurifier or similar library
-
-        // Remove potentially dangerous tags
-        $content = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $content);
-        $content = preg_replace('/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/mi', '', $content);
-        $content = preg_replace('/on\w+="[^"]*"/i', '', $content);
-        $content = preg_replace('/javascript:/i', '', $content);
-
-        return $content;
     }
 }

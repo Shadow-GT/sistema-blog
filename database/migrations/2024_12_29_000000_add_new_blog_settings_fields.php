@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -10,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // En una instalación limpia esta migración corre antes de crear la tabla
+        // blog_settings (se crea en 2025_08_24). En ese caso no hay nada que hacer:
+        // la migración de creación ya inserta estas mismas claves por defecto.
+        if (!Schema::hasTable('blog_settings')) {
+            return;
+        }
+
         // Agregar nuevos registros de configuración sin afectar los existentes
         $newSettings = [
             [

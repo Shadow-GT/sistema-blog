@@ -143,6 +143,7 @@ class SearchService
     public function getRelatedPosts(Post $post, int $limit = 4): \Illuminate\Database\Eloquent\Collection
     {
         return Post::published()
+            ->with(['category', 'postType', 'user'])
             ->where('id', '!=', $post->id)
             ->where(function ($query) use ($post) {
                 $query->where('category_id', $post->category_id)

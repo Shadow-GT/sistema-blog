@@ -17,8 +17,6 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
-        "froala-editor": "^4.5.2",
-        "lucide": "^0.541.0",
         "tinymce": "^8.0.1"
     }
 }

@@ -8,6 +8,10 @@
     <title>@yield('title', \App\Models\BlogSetting::get('site_name', config('app.name')))</title>
     <meta name="description" content="@yield('description', 'Blog de ' . \App\Models\BlogSetting::get('site_name', config('app.name')) . '. Contenido de calidad sobre diversos temas.')">
 
+    <!-- Canonical + indexación -->
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta name="robots" content="@yield('meta_robots', 'index, follow, max-image-preview:large')">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -33,546 +37,299 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/css/post-content.css', 'resources/js/app.js'])
 
-
-
-    <!-- Custom Styles -->
     <style>
-        /* Prevent flash of unstyled content */
-        [x-cloak] {
-            display: none !important;
-        }
-
-        /* Custom scrollbar for mobile menu */
-        .mobile-menu::-webkit-scrollbar {
-            width: 4px;
-        }
-        .mobile-menu::-webkit-scrollbar-track {
-            background: #f8fafc;
-        }
-        .mobile-menu::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 2px;
-        }
-        .mobile-menu::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Mobile menu backdrop blur effect */
-        .mobile-menu-backdrop {
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        /* Smooth animations for mobile menu items */
-        .mobile-menu-item {
-            transform: translateX(0);
-            transition: all 0.2s ease-in-out;
-        }
-        .mobile-menu-item:hover {
-            transform: translateX(4px);
-        }
-
-        /* Hover effects for dropdown items */
-        .dropdown-item {
-            transition: all 0.15s ease-in-out;
-        }
-        .dropdown-item:hover {
-            transform: translateX(2px);
-        }
+        [x-cloak] { display: none !important; }
+        .nav-scroll::-webkit-scrollbar { width: 4px; }
+        .nav-scroll::-webkit-scrollbar-track { background: #f8fafc; }
+        .nav-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     </style>
+
+    {{-- Datos estructurados globales (Schema.org) --}}
+    @php
+        $seoSiteName = \App\Models\BlogSetting::get('site_name', config('app.name'));
+        $seoLogo = \App\Models\BlogSetting::get('site_logo')
+            ? asset('storage/' . \App\Models\BlogSetting::get('site_logo'))
+            : asset('images/default-og-image.svg');
+    @endphp
+    <x-seo.json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => $seoSiteName,
+        'url' => url('/'),
+        'logo' => $seoLogo,
+    ]" />
+    <x-seo.json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => $seoSiteName,
+        'url' => url('/'),
+        'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => [
+                '@type' => 'EntryPoint',
+                'urlTemplate' => url('/') . '?search={search_term_string}',
+            ],
+            'query-input' => 'required name=search_term_string',
+        ],
+    ]" />
+
+    @stack('head')
 </head>
-<body class="font-sans antialiased bg-gradient-to-br from-secondary-50 to-primary-50 min-h-screen">
+<body class="min-h-screen bg-gradient-to-br from-secondary-50 to-primary-50 font-sans text-secondary-800 antialiased">
+    @php
+        $siteLogo = \App\Models\BlogSetting::get('site_logo');
+        $navbarText = \App\Models\BlogSetting::get('navbar_text', config('app.name'));
+    @endphp
+
     <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md shadow-soft border-b border-secondary-200/50 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20">
+    <nav class="sticky top-0 z-50 border-b border-secondary-200/50 bg-white/80 shadow-soft backdrop-blur-md">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-20 justify-between">
                 <div class="flex items-center">
                     <!-- Logo -->
-                    <a href="{{ route('blog.index') }}" class="flex items-center group">
-                        @php
-                            $siteLogo = \App\Models\BlogSetting::get('site_logo');
-                            $navbarText = \App\Models\BlogSetting::get('navbar_text', config('app.name'));
-                        @endphp
-
+                    <a href="{{ route('blog.index') }}" class="group flex items-center">
                         @if($siteLogo)
-                            <img src="{{ asset('storage/' . $siteLogo) }}"
-                                 alt="{{ $navbarText }}"
-                                 class="h-10 w-auto object-contain mr-3 group-hover:scale-105 transition-transform duration-200">
+                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $navbarText }}"
+                                 class="mr-3 h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105">
                         @else
-                            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl flex items-center justify-center mr-3 group-hover:scale-105 transition-transform duration-200">
-                                <span class="text-white font-bold text-sm">{{ substr($navbarText, 0, 2) }}</span>
+                            <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 transition-transform duration-200 group-hover:scale-105">
+                                <span class="text-sm font-bold text-white">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($navbarText, 0, 2)) }}</span>
                             </div>
                         @endif
-
-                        <span class="text-lg md:text-2xl font-bold bg-gradient-to-r from-secondary-900 to-primary-700 bg-clip-text text-transparent truncate">{{ $navbarText }}</span>
+                        <span class="truncate bg-gradient-to-r from-secondary-900 to-primary-700 bg-clip-text text-lg font-bold text-transparent md:text-2xl">{{ $navbarText }}</span>
                     </a>
 
-                    <!-- Navigation Links -->
+                    <!-- Desktop nav links -->
                     <div class="hidden sm:ml-12 sm:flex sm:space-x-1">
-                        <a href="{{ route('blog.index') }}" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium text-secondary-700 hover:text-primary-600 hover:bg-primary-50 transition-all duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            Inicio
+                        <a href="{{ route('blog.index') }}" class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-secondary-700 transition-all duration-200 hover:bg-primary-50 hover:text-primary-600">
+                            <x-lucide-house class="h-4 w-4" /> Inicio
                         </a>
 
-                        <!-- Categories Dropdown -->
+                        <!-- Categories dropdown -->
                         <div class="relative inline-flex items-center" x-data="{ open: false }">
-                            <button @click="open = !open" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium text-secondary-700 hover:text-primary-600 hover:bg-primary-50 transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                </svg>
-                                Categorías
-                                <svg class="ml-2 h-4 w-4 transform transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
+                            <button @click="open = !open" class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-secondary-700 transition-all duration-200 hover:bg-primary-50 hover:text-primary-600">
+                                <x-lucide-tag class="h-4 w-4" /> Categorías
+                                <x-lucide-chevron-down class="h-4 w-4 transition-transform duration-200" ::class="{ 'rotate-180': open }" />
                             </button>
-
-                            <!-- Dropdown Menu -->
-                            <div x-show="open"
-                                 x-cloak
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 scale-95"
-                                 x-transition:enter-end="opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="opacity-100 scale-100"
-                                 x-transition:leave-end="opacity-0 scale-95"
-                                 @click.away="open = false"
-                                 class="absolute top-full left-0 mt-3 w-72 bg-white/95 backdrop-blur-md rounded-2xl shadow-large ring-1 ring-secondary-200/50 z-50 animate-slide-up">
+                            <div x-show="open" x-cloak @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute left-0 top-full z-50 mt-3 w-72 rounded-2xl bg-white/95 shadow-large ring-1 ring-secondary-200/50 backdrop-blur-md">
                                 <div class="p-3">
-                                    @php
-                                        $categories = \App\Models\Category::active()
-                                            ->withCount(['posts as published_posts_count' => function ($query) {
-                                                $query->where('status', 'published');
-                                            }])
-                                            ->orderBy('name')
-                                            ->get();
-                                    @endphp
-
-                                    @foreach($categories as $category)
-                                    <a href="{{ route('blog.category', $category->slug) }}"
-                                       class="dropdown-item flex items-center px-4 py-3 rounded-xl text-sm text-secondary-700 hover:bg-primary-50 hover:text-primary-700 transition-all duration-200 group">
-                                        <div class="w-4 h-4 rounded-full mr-3 group-hover:scale-110 transition-transform duration-200" style="background-color: {{ $category->color }}"></div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold">{{ $category->name }}</div>
-                                            <div class="text-xs text-secondary-500">{{ $category->published_posts_count }} artículos</div>
-                                        </div>
-                                        <svg class="w-4 h-4 text-secondary-400 group-hover:text-primary-500 opacity-0 group-hover:opacity-100 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </a>
-                                    @endforeach
-
-                                    <div class="border-t border-secondary-100 mt-3 pt-3">
-                                        <a href="{{ route('blog.index') }}" class="flex items-center px-4 py-2 rounded-xl text-sm text-primary-600 hover:bg-primary-50 transition-all duration-200 font-medium">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                                            </svg>
-                                            Ver todas las categorías
+                                    @foreach($navCategories as $category)
+                                        <a href="{{ route('blog.category', $category->slug) }}"
+                                           class="group flex items-center rounded-xl px-4 py-3 text-sm text-secondary-700 transition-all duration-200 hover:bg-primary-50 hover:text-primary-700">
+                                            <span class="mr-3 h-4 w-4 rounded-full transition-transform duration-200 group-hover:scale-110" style="background-color: {{ $category->color }}"></span>
+                                            <span class="flex-1">
+                                                <span class="block font-semibold">{{ $category->name }}</span>
+                                                <span class="block text-xs text-secondary-500">{{ $category->published_posts_count }} artículos</span>
+                                            </span>
+                                            <x-lucide-chevron-right class="h-4 w-4 text-secondary-400 opacity-0 transition-all duration-200 group-hover:text-primary-500 group-hover:opacity-100" />
                                         </a>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Post Types Dropdown -->
+                        <!-- Post types dropdown -->
                         <div class="relative inline-flex items-center" x-data="{ open: false }">
-                            <button @click="open = !open" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium text-secondary-700 hover:text-primary-600 hover:bg-primary-50 transition-all duration-200">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4-4m4 4l-4 4M1 12h4m14 0H9m10 0H5" />
-                                </svg>
-                                Tipos
-                                <svg class="ml-2 h-4 w-4 transform transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
+                            <button @click="open = !open" class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-secondary-700 transition-all duration-200 hover:bg-primary-50 hover:text-primary-600">
+                                <x-lucide-layout-grid class="h-4 w-4" /> Tipos
+                                <x-lucide-chevron-down class="h-4 w-4 transition-transform duration-200" ::class="{ 'rotate-180': open }" />
                             </button>
-
-                            <!-- Post Types Dropdown Menu -->
-                            <div x-show="open"
-                                 x-cloak
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 scale-95"
-                                 x-transition:enter-end="opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="opacity-100 scale-100"
-                                 x-transition:leave-end="opacity-0 scale-95"
-                                 @click.away="open = false"
-                                 class="absolute top-full left-0 mt-3 w-72 bg-white/95 backdrop-blur-md rounded-2xl shadow-large ring-1 ring-secondary-200/50 z-50 animate-slide-up">
+                            <div x-show="open" x-cloak @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute left-0 top-full z-50 mt-3 w-72 rounded-2xl bg-white/95 shadow-large ring-1 ring-secondary-200/50 backdrop-blur-md">
                                 <div class="p-3">
-                                    @php
-                                        $postTypes = \App\Models\PostType::active()
-                                            ->withCount(['posts as published_posts_count' => function ($query) {
-                                                $query->where('status', 'published');
-                                            }])
-                                            ->orderBy('name')
-                                            ->get();
-                                    @endphp
-
-                                    @foreach($postTypes as $postType)
-                                    <a href="{{ route('blog.post-type', $postType->slug) }}"
-                                       class="dropdown-item flex items-center px-4 py-3 rounded-xl text-sm text-secondary-700 hover:bg-primary-50 hover:text-primary-700 transition-all duration-200 group">
-                                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-100 to-accent-200 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-200">
-                                            <span class="text-lg">{{ $postType->icon ?? '📄' }}</span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <div class="font-semibold">{{ $postType->name }}</div>
-                                            <div class="text-xs text-secondary-500">{{ $postType->published_posts_count }} publicaciones</div>
-                                        </div>
-                                        <svg class="w-4 h-4 text-secondary-400 group-hover:text-primary-500 opacity-0 group-hover:opacity-100 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </a>
-                                    @endforeach
-
-                                    <div class="border-t border-secondary-100 mt-3 pt-3">
-                                        <a href="{{ route('blog.index') }}" class="flex items-center px-4 py-2 rounded-xl text-sm text-primary-600 hover:bg-primary-50 transition-all duration-200 font-medium">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4-4m4 4l-4 4" />
-                                            </svg>
-                                            Ver todos los tipos
+                                    @foreach($navPostTypes as $postType)
+                                        <a href="{{ route('blog.post-type', $postType->slug) }}"
+                                           class="group flex items-center rounded-xl px-4 py-3 text-sm text-secondary-700 transition-all duration-200 hover:bg-primary-50 hover:text-primary-700">
+                                            <span class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-100 to-accent-200 transition-transform duration-200 group-hover:scale-110">
+                                                <span class="text-lg">{{ $postType->icon ?? '📄' }}</span>
+                                            </span>
+                                            <span class="flex-1">
+                                                <span class="block font-semibold">{{ $postType->name }}</span>
+                                                <span class="block text-xs text-secondary-500">{{ $postType->published_posts_count }} publicaciones</span>
+                                            </span>
+                                            <x-lucide-chevron-right class="h-4 w-4 text-secondary-400 opacity-0 transition-all duration-200 group-hover:text-primary-500 group-hover:opacity-100" />
                                         </a>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Search -->
+                <!-- Right side -->
                 <div class="flex items-center space-x-4">
+                    <!-- Search -->
                     <form action="{{ route('blog.index') }}" method="GET" class="hidden md:block">
                         <div class="relative">
-                            <input type="text" name="search" placeholder="Buscar..."
-                                   value="{{ request('search') }}"
-                                   class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
+                            <input type="text" name="search" placeholder="Buscar..." value="{{ request('search') }}"
+                                   class="w-64 rounded-xl border border-secondary-200 py-2 pl-10 pr-4 text-sm placeholder-secondary-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-500/30">
+                            <x-lucide-search class="pointer-events-none absolute inset-y-0 left-3 my-auto h-5 w-5 text-secondary-400" />
                         </div>
                     </form>
 
-                    <!-- Auth Links -->
+                    <!-- Auth -->
                     @auth
                         <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition duration-150 ease-in-out">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-xs font-medium text-gray-700">
-                                        {{ substr(Auth::user()->name, 0, 2) }}
-                                    </span>
-                                </div>
-                                {{ Auth::user()->name }}
-                                <svg class="ml-1 h-4 w-4 transform transition-transform duration-200" :class="{ 'rotate-180': open }" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
+                            <button @click="open = !open" class="flex items-center gap-2 text-sm font-medium text-secondary-600 transition hover:text-secondary-900">
+                                <x-avatar :name="auth()->user()->name" size="sm" />
+                                <span class="hidden lg:inline">{{ auth()->user()->name }}</span>
+                                <x-lucide-chevron-down class="h-4 w-4 transition-transform duration-200" ::class="{ 'rotate-180': open }" />
                             </button>
-
-                            <!-- User Dropdown Menu -->
-                            <div x-show="open"
-                                 x-cloak
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 scale-95"
-                                 x-transition:enter-end="opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="opacity-100 scale-100"
-                                 x-transition:leave-end="opacity-0 scale-95"
-                                 @click.away="open = false"
-                                 class="absolute right-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                                <div class="py-2">
-                                    <!-- User Info -->
-                                    <div class="px-4 py-2 border-b border-gray-100">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                                                <span class="text-sm font-medium text-gray-700">
-                                                    {{ substr(Auth::user()->name, 0, 2) }}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <div class="font-medium text-gray-900">{{ Auth::user()->name }}</div>
-                                                <div class="text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                                                <div class="text-xs text-blue-600 capitalize">{{ Auth::user()->role }}</div>
-                                            </div>
+                            <div x-show="open" x-cloak @click.away="open = false"
+                                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                                 class="absolute right-0 top-full z-50 mt-2 w-60 rounded-2xl bg-white shadow-large ring-1 ring-secondary-200/50">
+                                <div class="border-b border-secondary-100 p-4">
+                                    <div class="flex items-center gap-3">
+                                        <x-avatar :name="auth()->user()->name" size="md" />
+                                        <div class="min-w-0">
+                                            <div class="truncate font-medium text-secondary-900">{{ auth()->user()->name }}</div>
+                                            <div class="truncate text-xs text-secondary-500">{{ auth()->user()->email }}</div>
+                                            <div class="text-xs font-medium capitalize text-primary-600">{{ auth()->user()->role }}</div>
                                         </div>
                                     </div>
-
-                                    <!-- Navigation Links -->
-                                    <div class="py-1">
-                                        <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
-                                            </svg>
-                                            Dashboard
+                                </div>
+                                <div class="p-2">
+                                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                        <x-lucide-layout-dashboard class="h-4 w-4 text-secondary-400" /> Dashboard
+                                    </a>
+                                    @if(auth()->user()->canPublish())
+                                        <a href="{{ route('posts.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                            <x-lucide-file-text class="h-4 w-4 text-secondary-400" /> Mis Posts
                                         </a>
-
-                                        @if(Auth::user()->canPublish())
-                                        <a href="{{ route('posts.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            Mis Posts
+                                        <a href="{{ route('posts.create') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                            <x-lucide-square-pen class="h-4 w-4 text-secondary-400" /> Crear Post
                                         </a>
-
-                                        <a href="{{ route('posts.create') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            Crear Post
+                                    @endif
+                                    @if(auth()->user()->canModerate())
+                                        <a href="{{ route('moderation.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                            <x-lucide-shield-check class="h-4 w-4 text-secondary-400" /> Moderación
                                         </a>
-                                        @endif
-
-                                        @if(Auth::user()->canModerate())
-                                        <a href="{{ route('moderation.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Moderación
+                                        <a href="{{ route('comments.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                            <x-lucide-message-square class="h-4 w-4 text-secondary-400" /> Comentarios
                                         </a>
-
-                                        <a href="{{ route('comments.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.456L3 21l2.544-5.094A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
-                                            </svg>
-                                            Comentarios
+                                    @endif
+                                    @if(auth()->user()->isAdmin())
+                                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                            <x-lucide-users class="h-4 w-4 text-secondary-400" /> Usuarios
                                         </a>
-                                        @endif
-
-                                        @if(Auth::user()->isAdmin())
-                                        <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                            </svg>
-                                            Administración de Usuarios
-                                        </a>
-                                        @endif
-
-                                        <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                                            <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                            Mi Perfil
-                                        </a>
-                                    </div>
-
-                                    <!-- Logout -->
-                                    <div class="border-t border-gray-100 pt-1">
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150 ease-in-out">
-                                                <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                </svg>
-                                                Cerrar Sesión
-                                            </button>
-                                        </form>
-                                    </div>
+                                    @endif
+                                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-secondary-700 transition hover:bg-primary-50 hover:text-primary-700">
+                                        <x-lucide-user class="h-4 w-4 text-secondary-400" /> Mi Perfil
+                                    </a>
+                                </div>
+                                <div class="border-t border-secondary-100 p-2">
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-danger-600 transition hover:bg-danger-50">
+                                            <x-lucide-log-out class="h-4 w-4" /> Cerrar Sesión
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     @else
-                        <!-- Hide login/register buttons on mobile since they're in the mobile menu -->
-                        <div class="hidden sm:flex sm:items-center sm:space-x-4">
-                            <a href="{{ route('login') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">Iniciar Sesión</a>
-                            <a href="{{ route('register') }}" class="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">Registrarse</a>
+                        <div class="hidden sm:flex sm:items-center sm:space-x-3">
+                            <a href="{{ route('login') }}" class="text-sm font-medium text-secondary-600 hover:text-secondary-900">Iniciar Sesión</a>
+                            <x-ui.button :href="route('register')" size="sm" icon="user-plus">Registrarse</x-ui.button>
                         </div>
                     @endauth
 
                     <!-- Mobile menu button -->
                     <div class="flex items-center sm:hidden" x-data="{ mobileOpen: false }">
-                        <button @click="mobileOpen = !mobileOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
-                            <svg class="h-6 w-6" :class="{ 'hidden': mobileOpen, 'block': !mobileOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                            <svg class="h-6 w-6" :class="{ 'block': mobileOpen, 'hidden': !mobileOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                        <button @click="mobileOpen = !mobileOpen" class="inline-flex items-center justify-center rounded-lg p-2 text-secondary-500 hover:bg-secondary-100 hover:text-secondary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/40">
+                            <x-lucide-menu class="h-6 w-6" x-show="!mobileOpen" />
+                            <x-lucide-x class="h-6 w-6" x-show="mobileOpen" x-cloak />
                         </button>
 
-                        <!-- Mobile menu -->
-                        <div x-show="mobileOpen"
-                             x-cloak
-                             x-transition:enter="transition ease-out duration-300"
-                             x-transition:enter-start="opacity-0 -translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-200"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 -translate-y-2"
-                             @click.away="mobileOpen = false"
-                             class="fixed top-20 left-0 right-0 bg-white/95 backdrop-blur-md shadow-xl border-t border-gray-200 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto mobile-menu mobile-menu-backdrop">
-                            <div class="px-4 py-3 space-y-1">
-                                <a href="{{ route('blog.index') }}" @click="mobileOpen = false" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group mobile-menu-item">
-                                    <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                    </svg>
-                                    Inicio
+                        <!-- Mobile menu panel -->
+                        <div x-show="mobileOpen" x-cloak @click.away="mobileOpen = false"
+                             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
+                             class="nav-scroll fixed left-0 right-0 top-20 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-secondary-200 bg-white/95 shadow-xl backdrop-blur-md">
+                            <div class="space-y-1 px-4 py-3">
+                                <a href="{{ route('blog.index') }}" @click="mobileOpen = false" class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-sm font-medium text-secondary-700 transition hover:bg-primary-50 hover:text-primary-600">
+                                    <x-lucide-house class="h-4 w-4 text-secondary-400" /> Inicio
                                 </a>
 
-                                <!-- Mobile Categories -->
-                                <div class="border-t border-gray-100 pt-2" x-data="{ categoriesOpen: false }">
-                                    <button @click="categoriesOpen = !categoriesOpen" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                            </svg>
-                                            Categorías
-                                        </div>
-                                        <svg class="w-4 h-4 transform transition-transform duration-200" :class="{ 'rotate-180': categoriesOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
+                                <!-- Mobile categories -->
+                                <div class="border-t border-secondary-100 pt-2" x-data="{ catsOpen: false }">
+                                    <button @click="catsOpen = !catsOpen" class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium text-secondary-700 transition hover:bg-primary-50 hover:text-primary-600">
+                                        <span class="flex items-center gap-2"><x-lucide-tag class="h-4 w-4" /> Categorías</span>
+                                        <x-lucide-chevron-down class="h-4 w-4 transition-transform" ::class="{ 'rotate-180': catsOpen }" />
                                     </button>
-                                    <div x-show="categoriesOpen"
-                                         x-cloak
-                                         x-transition:enter="transition ease-out duration-200"
-                                         x-transition:enter-start="opacity-0 max-h-0"
-                                         x-transition:enter-end="opacity-100 max-h-96"
-                                         x-transition:leave="transition ease-in duration-150"
-                                         x-transition:leave-start="opacity-100 max-h-96"
-                                         x-transition:leave-end="opacity-0 max-h-0"
-                                         class="overflow-hidden">
-                                        @php
-                                            $mobileCategories = \App\Models\Category::active()
-                                                ->withCount(['posts as published_posts_count' => function ($query) {
-                                                    $query->where('status', 'published');
-                                                }])
-                                                ->orderBy('name')
-                                                ->take(6) // Limitar a 6 categorías para mantenerlo compacto
-                                                ->get();
-                                        @endphp
-                                        <div class="py-1 space-y-0.5">
-                                            @foreach($mobileCategories as $category)
-                                            <a href="{{ route('blog.category', $category->slug) }}" @click="mobileOpen = false" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group mobile-menu-item">
-                                                <div class="w-2.5 h-2.5 rounded-full mr-2.5 group-hover:scale-110 transition-transform duration-200" style="background-color: {{ $category->color }}"></div>
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="font-medium truncate">{{ $category->name }}</div>
-                                                </div>
-                                                <div class="text-xs text-gray-400 ml-2">{{ $category->published_posts_count }}</div>
+                                    <div x-show="catsOpen" x-cloak class="space-y-0.5 py-1">
+                                        @foreach($navCategories->take(6) as $category)
+                                            <a href="{{ route('blog.category', $category->slug) }}" @click="mobileOpen = false" class="flex items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-secondary-600 transition hover:bg-primary-50 hover:text-primary-600">
+                                                <span class="h-2.5 w-2.5 rounded-full" style="background-color: {{ $category->color }}"></span>
+                                                <span class="flex-1 truncate font-medium">{{ $category->name }}</span>
+                                                <span class="text-xs text-secondary-400">{{ $category->published_posts_count }}</span>
                                             </a>
-                                            @endforeach
-                                        </div>
+                                        @endforeach
                                     </div>
                                 </div>
 
-                                <!-- Mobile Post Types -->
-                                <div class="border-t border-gray-100 pt-2" x-data="{ typesOpen: false }">
-                                    <button @click="typesOpen = !typesOpen" class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0l-4-4m4 4l-4 4M1 12h4m14 0H9m10 0H5" />
-                                            </svg>
-                                            Tipos de Contenido
-                                        </div>
-                                        <svg class="w-4 h-4 transform transition-transform duration-200" :class="{ 'rotate-180': typesOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
+                                <!-- Mobile types -->
+                                <div class="border-t border-secondary-100 pt-2" x-data="{ typesOpen: false }">
+                                    <button @click="typesOpen = !typesOpen" class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium text-secondary-700 transition hover:bg-primary-50 hover:text-primary-600">
+                                        <span class="flex items-center gap-2"><x-lucide-layout-grid class="h-4 w-4" /> Tipos de Contenido</span>
+                                        <x-lucide-chevron-down class="h-4 w-4 transition-transform" ::class="{ 'rotate-180': typesOpen }" />
                                     </button>
-                                    <div x-show="typesOpen"
-                                         x-cloak
-                                         x-transition:enter="transition ease-out duration-200"
-                                         x-transition:enter-start="opacity-0 max-h-0"
-                                         x-transition:enter-end="opacity-100 max-h-96"
-                                         x-transition:leave="transition ease-in duration-150"
-                                         x-transition:leave-start="opacity-100 max-h-96"
-                                         x-transition:leave-end="opacity-0 max-h-0"
-                                         class="overflow-hidden">
-                                        @php
-                                            $mobilePostTypes = \App\Models\PostType::active()
-                                                ->withCount(['posts as published_posts_count' => function ($query) {
-                                                    $query->where('status', 'published');
-                                                }])
-                                                ->orderBy('name')
-                                                ->take(5) // Limitar a 5 tipos para mantenerlo compacto
-                                                ->get();
-                                        @endphp
-                                        <div class="py-1 space-y-0.5">
-                                            @foreach($mobilePostTypes as $postType)
-                                            <a href="{{ route('blog.post-type', $postType->slug) }}" @click="mobileOpen = false" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group mobile-menu-item">
-                                                <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-accent-100 to-accent-200 flex items-center justify-center mr-2.5 group-hover:scale-110 transition-transform duration-200">
-                                                    <span class="text-xs">{{ $postType->icon ?? '📄' }}</span>
-                                                </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="font-medium truncate">{{ $postType->name }}</div>
-                                                </div>
-                                                <div class="text-xs text-gray-400 ml-2">{{ $postType->published_posts_count }}</div>
+                                    <div x-show="typesOpen" x-cloak class="space-y-0.5 py-1">
+                                        @foreach($navPostTypes->take(5) as $postType)
+                                            <a href="{{ route('blog.post-type', $postType->slug) }}" @click="mobileOpen = false" class="flex items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-secondary-600 transition hover:bg-primary-50 hover:text-primary-600">
+                                                <span class="text-base">{{ $postType->icon ?? '📄' }}</span>
+                                                <span class="flex-1 truncate font-medium">{{ $postType->name }}</span>
+                                                <span class="text-xs text-secondary-400">{{ $postType->published_posts_count }}</span>
                                             </a>
-                                            @endforeach
-                                        </div>
+                                        @endforeach
                                     </div>
                                 </div>
 
                                 @auth
-                                <!-- Mobile User Menu -->
-                                <div class="border-t border-gray-100 pt-2 mt-2 space-y-1">
-                                    <!-- User info card - más compacta -->
-                                    <div class="mx-4 p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-2.5">
-                                                <span class="text-white font-bold text-xs">{{ substr(Auth::user()->name, 0, 2) }}</span>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="font-medium text-gray-900 text-sm truncate">{{ Auth::user()->name }}</div>
-                                                <div class="text-xs text-blue-600 capitalize">{{ Auth::user()->role }}</div>
+                                    <div class="mt-2 space-y-1 border-t border-secondary-100 pt-2">
+                                        <div class="mx-4 flex items-center gap-2.5 rounded-lg border border-primary-100 bg-primary-50 p-2.5">
+                                            <x-avatar :name="auth()->user()->name" size="sm" />
+                                            <div class="min-w-0">
+                                                <div class="truncate text-sm font-medium text-secondary-900">{{ auth()->user()->name }}</div>
+                                                <div class="text-xs font-medium capitalize text-primary-600">{{ auth()->user()->role }}</div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="space-y-0.5">
-                                        <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
-                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                                            </svg>
-                                            Dashboard
+                                        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-secondary-600 transition hover:bg-primary-50 hover:text-primary-600">
+                                            <x-lucide-layout-dashboard class="h-4 w-4 text-secondary-400" /> Dashboard
                                         </a>
-                                        @if(Auth::user()->canPublish())
-                                        <a href="{{ route('posts.index') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
-                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            Mis Posts
-                                        </a>
+                                        @if(auth()->user()->canPublish())
+                                            <a href="{{ route('posts.index') }}" class="flex items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-secondary-600 transition hover:bg-primary-50 hover:text-primary-600">
+                                                <x-lucide-file-text class="h-4 w-4 text-secondary-400" /> Mis Posts
+                                            </a>
                                         @endif
-                                        @if(Auth::user()->canModerate())
-                                        <a href="{{ route('moderation.index') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
-                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Moderación
-                                        </a>
+                                        @if(auth()->user()->canModerate())
+                                            <a href="{{ route('moderation.index') }}" class="flex items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-secondary-600 transition hover:bg-primary-50 hover:text-primary-600">
+                                                <x-lucide-shield-check class="h-4 w-4 text-secondary-400" /> Moderación
+                                            </a>
                                         @endif
-                                        <a href="{{ route('profile.edit') }}" class="flex items-center px-6 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 group">
-                                            <svg class="w-4 h-4 mr-2.5 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                            Mi Perfil
+                                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-secondary-600 transition hover:bg-primary-50 hover:text-primary-600">
+                                            <x-lucide-user class="h-4 w-4 text-secondary-400" /> Mi Perfil
                                         </a>
-                                        <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                                        <form method="POST" action="{{ route('logout') }}">
                                             @csrf
-                                            <button type="submit" class="flex items-center w-full px-6 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200 group">
-                                                <svg class="w-4 h-4 mr-2.5 text-red-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                </svg>
-                                                Cerrar Sesión
+                                            <button type="submit" class="flex w-full items-center gap-2.5 rounded-lg px-6 py-2 text-sm text-danger-600 transition hover:bg-danger-50">
+                                                <x-lucide-log-out class="h-4 w-4" /> Cerrar Sesión
                                             </button>
                                         </form>
                                     </div>
-                                </div>
                                 @else
-                                <div class="border-t border-gray-100 pt-2 mt-2">
-                                    <div class="px-4 space-y-2">
-                                        <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 border border-gray-200 rounded-lg transition-all duration-200 group">
-                                            <svg class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                                            </svg>
-                                            Iniciar Sesión
+                                    <div class="mt-2 space-y-2 border-t border-secondary-100 px-4 pt-3">
+                                        <a href="{{ route('login') }}" class="flex items-center justify-center gap-2 rounded-lg border border-secondary-200 px-4 py-2.5 text-sm font-medium text-secondary-700 transition hover:bg-primary-50 hover:text-primary-600">
+                                            <x-lucide-log-in class="h-4 w-4" /> Iniciar Sesión
                                         </a>
-                                        <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                                            </svg>
-                                            Registrarse
-                                        </a>
+                                        <x-ui.button :href="route('register')" icon="user-plus" class="w-full">Registrarse</x-ui.button>
                                     </div>
-                                </div>
                                 @endauth
                             </div>
                         </div>
@@ -582,72 +339,61 @@
         </div>
     </nav>
 
-    <!-- Page Content -->
+    <!-- Page content -->
     <main class="min-h-screen">
         @yield('content')
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="col-span-1 md:col-span-2">
+    <footer class="bg-secondary-900 text-secondary-300">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
+                @php
+                    $footerLogo = \App\Models\BlogSetting::get('footer_logo');
+                    $footerText = \App\Models\BlogSetting::get('footer_text', config('app.name'));
+                    $siteDescription = \App\Models\BlogSetting::get('site_description', 'Tu fuente confiable de información sobre tecnología, programación y desarrollo web.');
+                @endphp
+                <div class="md:col-span-2">
                     <div class="flex items-center">
-                        @php
-                            $footerLogo = \App\Models\BlogSetting::get('footer_logo');
-                            $siteLogo = \App\Models\BlogSetting::get('site_logo');
-                            $footerText = \App\Models\BlogSetting::get('footer_text', config('app.name'));
-                            $siteDescription = \App\Models\BlogSetting::get('site_description', 'Tu fuente confiable de información sobre tecnología, programación y desarrollo web.');
-                        @endphp
-
-                        @if($footerLogo)
-                            <img src="{{ asset('storage/' . $footerLogo) }}"
-                                 alt="{{ $footerText }}"
-                                 class="h-8 w-auto object-contain mr-3">
-                        @elseif($siteLogo)
-                            <img src="{{ asset('storage/' . $siteLogo) }}"
-                                 alt="{{ $footerText }}"
-                                 class="h-8 w-auto object-contain mr-3">
+                        @if($footerLogo || $siteLogo)
+                            <img src="{{ asset('storage/' . ($footerLogo ?: $siteLogo)) }}" alt="{{ $footerText }}" class="mr-3 h-8 w-auto object-contain">
                         @else
-                            <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center mr-3">
-                                <span class="text-white font-bold text-xs">{{ substr($footerText, 0, 2) }}</span>
+                            <div class="mr-3 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-accent-500">
+                                <span class="text-xs font-bold text-white">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($footerText, 0, 2)) }}</span>
                             </div>
                         @endif
-                        <span class="ml-2 text-lg font-bold">{{ $footerText }}</span>
+                        <span class="text-lg font-bold text-white">{{ $footerText }}</span>
                     </div>
-                    <p class="mt-4 text-gray-300">
-                        {{ $siteDescription }}
-                    </p>
+                    <p class="mt-4 max-w-md text-sm leading-relaxed text-secondary-400">{{ $siteDescription }}</p>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Categorías</h3>
+                    <h3 class="text-sm font-semibold uppercase tracking-wider text-secondary-400">Categorías</h3>
                     <ul class="mt-4 space-y-2">
-                        <li><a href="#" class="text-gray-300 hover:text-white">Programación</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Inteligencia Artificial</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Desarrollo Web</a></li>
+                        @foreach($navCategories->take(5) as $category)
+                            <li>
+                                <a href="{{ route('blog.category', $category->slug) }}" class="text-sm text-secondary-400 transition hover:text-white">{{ $category->name }}</a>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Enlaces</h3>
+                    <h3 class="text-sm font-semibold uppercase tracking-wider text-secondary-400">Tipos de contenido</h3>
                     <ul class="mt-4 space-y-2">
-                        <li><a href="#" class="text-gray-300 hover:text-white">Acerca de</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Contacto</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white">Política de Privacidad</a></li>
+                        @foreach($navPostTypes->take(5) as $postType)
+                            <li>
+                                <a href="{{ route('blog.post-type', $postType->slug) }}" class="text-sm text-secondary-400 transition hover:text-white">{{ $postType->name }}</a>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
             </div>
 
-            <div class="mt-8 border-t border-gray-700 pt-8">
-                <p class="text-center text-gray-400">
-                    © {{ date('Y') }} {{ \App\Models\BlogSetting::get('footer_text', config('app.name')) }}. Todos los derechos reservados.
-                </p>
+            <div class="mt-8 border-t border-secondary-700 pt-8">
+                <p class="text-center text-sm text-secondary-400">© {{ date('Y') }} {{ $footerText }}. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
-
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>
