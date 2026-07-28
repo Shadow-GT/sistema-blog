@@ -62,6 +62,19 @@ class HtmlSanitizer
         }
         $config->set('Cache.SerializerPath', $cachePath);
 
+        // HTMLPurifier trabaja sobre HTML 4.01 Transitional y no conoce las
+        // etiquetas de HTML5. Sin registrarlas, cada elemento HTML5 de la
+        // allowlist dispara un E_USER_WARNING ("Element 'figure' is not
+        // supported") que Laravel convierte en ErrorException y rompe el
+        // guardado del post. Las declaramos como elementos de bloque propios.
+        $config->set('HTML.DefinitionID', 'blog-contenido-html5');
+        $config->set('HTML.DefinitionRev', 1);
+
+        if ($def = $config->maybeGetRawHTMLDefinition()) {
+            $def->addElement('figure', 'Block', 'Flow', 'Common');
+            $def->addElement('figcaption', 'Block', 'Flow', 'Common');
+        }
+
         $this->purifier = new HTMLPurifier($config);
     }
 
